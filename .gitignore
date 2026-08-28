@@ -1,0 +1,9 @@
+.env
+.ansible/
+ansible/inventory/hosts.yml
+terraform/.terraform/
+terraform/*.tfplan
+terraform/*.tfstate
+terraform/*.tfstate.*
+crash.log
+crash.*.log
