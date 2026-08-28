@@ -594,8 +594,6 @@ Plan: 0 to add, 0 to change, 8 to destroy.
 Destroy complete! Resources: 8 destroyed.
 ```
 
-Ainda falta registrar a evidencia de idempotencia descrita na secao [Teste de idempotencia](#teste-de-idempotencia): o `terraform apply` retornando `No changes` e o `ansible-playbook` retornando `changed=0`.
-
 ## Consideracoes de seguranca
 
 - **SSH nunca fica aberto para o mundo.** `0.0.0.0/0` e bloqueado em dois pontos independentes: uma guarda em `deploy.sh`/`destroy.sh` e um bloco `validation` em `terraform/variables.tf`.
