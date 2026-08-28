@@ -85,11 +85,6 @@ export TF_VAR_ssh_public_key="$SSH_PUBLIC_KEY_CONTENT"
 
 cd "$TERRAFORM_DIR"
 
-echo "Ambiente: ${ENVIRONMENT}"
-echo "IP publico para SSH: ${TF_VAR_ssh_allowed_cidr_block}"
-echo "Chave SSH privada local: ${SSH_PRIVATE_KEY_FILE}"
-echo "Chave SSH publica registrada: ${SSH_PUBLIC_KEY_FILE}"
-
 terraform init
 
 if terraform workspace list | sed 's/^[* ]*//' | grep -qx "$ENVIRONMENT"; then
@@ -98,6 +93,12 @@ else
   echo "Workspace '${ENVIRONMENT}' não existe. Nada foi destruído."
   exit 1
 fi
+
+echo "Environment: ${ENVIRONMENT}"
+echo "Workspace: ${ENVIRONMENT}"
+echo "IP publico para SSH: ${TF_VAR_ssh_allowed_cidr_block}"
+echo "Chave SSH privada local: ${SSH_PRIVATE_KEY_FILE}"
+echo "Chave SSH publica registrada: ${SSH_PUBLIC_KEY_FILE}"
 
 terraform validate
 terraform destroy
