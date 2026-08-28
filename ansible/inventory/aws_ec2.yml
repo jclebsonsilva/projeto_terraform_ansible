@@ -1,0 +1,18 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+filters:
+  tag:Project: projeto-terraform-ansible
+  tag:Environment: "{{ lookup('env', 'ENVIRONMENT') }}"
+  tag:Role: webserver
+  instance-state-name: running
+hostnames:
+  - tag:Name
+compose:
+  ansible_host: public_ip_address
+keyed_groups:
+  - key: tags.Role
+    prefix: role
+groups:
+  webservers: "tags.Role == 'webserver'"
+strict: false

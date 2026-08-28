@@ -16,6 +16,12 @@ Responsabilidades de cada ferramenta:
 - Credenciais AWS configuradas no ambiente
 - Permissao para criar ou reutilizar chaves em `~/.ssh/projeto-terraform-ansible/`
 
+Instale as collections Ansible do projeto com:
+
+```bash
+ansible-galaxy collection install -r ansible/requirements.yml
+```
+
 ## Configuracao
 
 Crie o arquivo `.env` a partir do exemplo:
@@ -60,7 +66,10 @@ ENVIRONMENT=prod ./destroy.sh
 
 - `terraform/`: infraestrutura como codigo
 - `ansible/playbooks/site.yml`: configuracao do servidor web
-- `ansible/templates/index.html.j2`: pagina publicada pelo Nginx
+- `ansible/inventory/aws_ec2.yml`: inventario dinamico via AWS
+- `ansible/requirements.yml`: collections Ansible do projeto
+- `ansible/group_vars/all/vars.yml`: variaveis compartilhadas do Ansible
+- `ansible/roles/webserver/`: role transitoria da configuracao atual
 - `deploy.sh`: executa Terraform e depois Ansible
 - `destroy.sh`: remove a infraestrutura com Terraform
 
@@ -85,6 +94,6 @@ O `deploy.sh` executa este fluxo:
 2. Gera ou reutiliza a chave SSH local do ambiente
 3. Seleciona ou cria o workspace Terraform
 4. Executa `terraform plan` e `terraform apply`
-5. Le o IP publico provisionado
-6. Gera `ansible/inventory/hosts.yml`
+5. Consulta a AWS API com base nas tags da EC2
+6. Resolve os hosts via `ansible/inventory/aws_ec2.yml`
 7. Executa o playbook `ansible/playbooks/site.yml`

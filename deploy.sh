@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="${SCRIPT_DIR}/.env"
 TERRAFORM_DIR="${SCRIPT_DIR}/terraform"
 ANSIBLE_DIR="${SCRIPT_DIR}/ansible"
-ANSIBLE_INVENTORY_FILE="${ANSIBLE_DIR}/inventory/hosts.yml"
+ANSIBLE_INVENTORY_FILE="${ANSIBLE_DIR}/inventory/aws_ec2.yml"
 ANSIBLE_PLAYBOOK_FILE="${ANSIBLE_DIR}/playbooks/site.yml"
 ANSIBLE_STATE_DIR="${SCRIPT_DIR}/.ansible"
 PROJECT_NAME="projeto-terraform-ansible"
@@ -108,34 +108,17 @@ terraform validate
 terraform plan -out="$PLAN_FILE"
 terraform apply "$PLAN_FILE"
 
-WEBSERVER_PUBLIC_IP="$(terraform output -raw webserver_public_ip)"
-WEBSERVER_PUBLIC_DNS="$(terraform output -raw webserver_public_dns)"
-KEY_PAIR_NAME="$(terraform output -raw key_pair_name)"
-
 mkdir -p "${ANSIBLE_DIR}/inventory" "${ANSIBLE_STATE_DIR}/tmp" "${ANSIBLE_STATE_DIR}/collections"
-
-cat > "$ANSIBLE_INVENTORY_FILE" <<EOF
-all:
-  children:
-    webservers:
-      hosts:
-        ${ENVIRONMENT}-webserver:
-          ansible_host: ${WEBSERVER_PUBLIC_IP}
-          ansible_user: ec2-user
-          ansible_python_interpreter: /usr/bin/python3
-          ansible_ssh_private_key_file: ${SSH_PRIVATE_KEY_FILE}
-          deployment_environment: ${ENVIRONMENT}
-          public_dns: ${WEBSERVER_PUBLIC_DNS}
-EOF
 
 export ANSIBLE_CONFIG="${ANSIBLE_DIR}/ansible.cfg"
 export ANSIBLE_HOME="${ANSIBLE_STATE_DIR}"
 export ANSIBLE_LOCAL_TEMP="${ANSIBLE_STATE_DIR}/tmp"
+export SSH_PRIVATE_KEY_FILE
 
 cd "$ANSIBLE_DIR"
 
-echo "Executando configuracao com Ansible no host ${WEBSERVER_PUBLIC_IP}"
-echo "Key pair registrado na AWS: ${KEY_PAIR_NAME}"
+echo "Executando configuracao com Ansible usando inventario dinamico AWS"
+echo "Fonte de inventario: ${ANSIBLE_INVENTORY_FILE}"
 
 ansible-playbook \
   -i "$ANSIBLE_INVENTORY_FILE" \

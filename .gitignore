@@ -1,7 +1,6 @@
 .env
 .ansible/
 *.pem
-ansible/inventory/hosts.yml
 terraform/.terraform/
 terraform/*.tfplan
 terraform/*.tfstate
