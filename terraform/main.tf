@@ -37,11 +37,15 @@ locals {
   name_prefix  = "${local.project_slug}-${local.environment}"
 
   common_tags = {
-    Ambiente  = local.environment
-    Curso     = "DevOps 2025.2"
-    ManagedBy = "terraform"
-    Projeto   = "projeto_terraform_ansible"
+    Course      = "DevOps 2025.2"
+    Environment = local.environment
+    ManagedBy   = "terraform"
+    Project     = local.project_slug
   }
+
+  webserver_tags = merge(local.common_tags, {
+    Role = "webserver"
+  })
 }
 
 resource "aws_key_pair" "automation" {
@@ -74,5 +78,5 @@ module "webserver" {
   instance_type      = local.webserver_instance_type
   instance_name      = "${local.name_prefix}-webserver"
   key_name           = aws_key_pair.automation.key_name
-  tags               = local.common_tags
+  tags               = local.webserver_tags
 }
