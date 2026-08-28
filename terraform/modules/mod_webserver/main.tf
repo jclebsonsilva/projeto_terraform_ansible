@@ -36,13 +36,6 @@ resource "aws_instance" "web" {
     http_tokens   = "required"
   }
 
-  user_data = <<-EOF
-    #!/bin/bash
-    set -eux
-
-    dnf install -y python3
-  EOF
-
   tags = merge(var.tags, {
     Name = var.instance_name
   })
