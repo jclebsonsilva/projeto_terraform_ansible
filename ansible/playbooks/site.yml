@@ -1,0 +1,40 @@
+---
+- name: Configurar servidor web provisionado pelo Terraform
+  hosts: webservers
+  become: true
+  gather_facts: false
+
+  pre_tasks:
+    - name: Aguardar disponibilidade SSH da instancia
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+
+    - name: Coletar fatos da instancia
+      ansible.builtin.setup:
+
+  tasks:
+    - name: Instalar Nginx
+      ansible.builtin.dnf:
+        name: nginx
+        state: present
+
+    - name: Publicar pagina inicial
+      ansible.builtin.template:
+        src: ../templates/index.html.j2
+        dest: /usr/share/nginx/html/index.html
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reiniciar Nginx
+
+    - name: Garantir que o Nginx esteja habilitado e ativo
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Reiniciar Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
