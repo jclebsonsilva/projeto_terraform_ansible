@@ -9,7 +9,9 @@ ANSIBLE_INVENTORY_FILE="${ANSIBLE_DIR}/inventory/aws_ec2.yml"
 ANSIBLE_PLAYBOOK_FILE="${ANSIBLE_DIR}/playbooks/site.yml"
 ANSIBLE_STATE_DIR="${SCRIPT_DIR}/.ansible"
 PROJECT_NAME="projeto-terraform-ansible"
-SSH_KEY_DIR="${HOME}/.ssh/${PROJECT_NAME}"
+SECRETS_DIR="${SCRIPT_DIR}/.secrets"
+DEFAULT_ANSIBLE_VAULT_PASSWORD_FILE="${SECRETS_DIR}/ansible-vault.pass"
+SSH_KEY_DIR="${SECRETS_DIR}/ssh"
 ANSIBLE_VAULT_ARGS=()
 
 require_env_var() {
@@ -18,6 +20,17 @@ require_env_var() {
     echo "Variavel obrigatoria ausente: ${var_name}"
     exit 1
   fi
+}
+
+resolve_project_path() {
+  local path_value="$1"
+
+  if [[ "$path_value" = /* ]]; then
+    printf '%s\n' "$path_value"
+    return
+  fi
+
+  printf '%s/%s\n' "$SCRIPT_DIR" "$path_value"
 }
 
 ensure_ssh_key_pair() {
@@ -48,17 +61,18 @@ ensure_ssh_key_pair() {
 }
 
 configure_vault_args() {
-  if [[ -n "${ANSIBLE_VAULT_PASSWORD_FILE:-}" ]]; then
-    if [[ ! -f "${ANSIBLE_VAULT_PASSWORD_FILE}" ]]; then
-      echo "Arquivo de senha do Vault nao encontrado: ${ANSIBLE_VAULT_PASSWORD_FILE}"
-      exit 1
-    fi
-
-    ANSIBLE_VAULT_ARGS=(--vault-password-file "${ANSIBLE_VAULT_PASSWORD_FILE}")
-    return
+  if [[ -z "${ANSIBLE_VAULT_PASSWORD_FILE:-}" ]]; then
+    ANSIBLE_VAULT_PASSWORD_FILE="${DEFAULT_ANSIBLE_VAULT_PASSWORD_FILE}"
   fi
 
-  ANSIBLE_VAULT_ARGS=(--ask-vault-pass)
+  ANSIBLE_VAULT_PASSWORD_FILE="$(resolve_project_path "$ANSIBLE_VAULT_PASSWORD_FILE")"
+
+  if [[ ! -f "${ANSIBLE_VAULT_PASSWORD_FILE}" ]]; then
+    echo "Arquivo de senha do Vault nao encontrado: ${ANSIBLE_VAULT_PASSWORD_FILE}"
+    exit 1
+  fi
+
+  ANSIBLE_VAULT_ARGS=(--vault-password-file "${ANSIBLE_VAULT_PASSWORD_FILE}")
 }
 
 if [[ -f "$ENV_FILE" ]]; then
@@ -100,6 +114,7 @@ SSH_PUBLIC_KEY_CONTENT="$(< "$SSH_PUBLIC_KEY_FILE")"
 
 export ENVIRONMENT
 export PUBLIC_IP
+export ANSIBLE_VAULT_PASSWORD_FILE
 export TF_VAR_ssh_allowed_cidr_block="$SSH_ALLOWED_CIDR_BLOCK"
 export TF_VAR_ssh_public_key="$SSH_PUBLIC_KEY_CONTENT"
 PLAN_FILE="plan-${ENVIRONMENT}.tfplan"
@@ -109,6 +124,7 @@ cd "$TERRAFORM_DIR"
 echo "Ambiente: ${ENVIRONMENT}"
 echo "Workspace Terraform: ${ENVIRONMENT}"
 echo "IP publico para SSH: ${TF_VAR_ssh_allowed_cidr_block}"
+echo "Arquivo de senha do Vault: ${ANSIBLE_VAULT_PASSWORD_FILE}"
 echo "Chave SSH privada local: ${SSH_PRIVATE_KEY_FILE}"
 echo "Chave SSH publica registrada: ${SSH_PUBLIC_KEY_FILE}"
 

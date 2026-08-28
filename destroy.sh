@@ -5,7 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="${SCRIPT_DIR}/.env"
 TERRAFORM_DIR="${SCRIPT_DIR}/terraform"
 PROJECT_NAME="projeto-terraform-ansible"
-SSH_KEY_DIR="${HOME}/.ssh/${PROJECT_NAME}"
+SECRETS_DIR="${SCRIPT_DIR}/.secrets"
+SSH_KEY_DIR="${SECRETS_DIR}/ssh"
 
 require_env_var() {
   local var_name="$1"

@@ -1,5 +1,6 @@
 .env
 .ansible/
+.secrets/
 *.pem
 terraform/.terraform/
 terraform/*.tfplan
