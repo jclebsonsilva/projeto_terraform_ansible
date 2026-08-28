@@ -14,8 +14,7 @@ Responsabilidades de cada ferramenta:
 - Terraform instalado
 - Ansible instalado
 - Credenciais AWS configuradas no ambiente
-- Um key pair existente na AWS para acesso SSH
-- A chave privada correspondente disponivel localmente
+- Permissao para criar ou reutilizar chaves em `~/.ssh/projeto-terraform-ansible/`
 
 ## Configuracao
 
@@ -30,9 +29,11 @@ Preencha as variaveis:
 ```bash
 ENVIRONMENT=dev
 PUBLIC_IP=SEU_IP_PUBLICO/32
-AWS_KEY_PAIR_NAME=seu-key-pair
-SSH_PRIVATE_KEY_PATH=/caminho/para/sua-chave.pem
 ```
+
+Ao executar `./deploy.sh`, o projeto gera ou reutiliza a chave ED25519 em `~/.ssh/projeto-terraform-ansible/<environment>`.
+
+Somente a chave publica e enviada ao Terraform/AWS. A chave privada permanece exclusivamente na sua maquina, fora do Terraform state e fora dos arquivos versionados.
 
 ## Execucao
 
@@ -81,8 +82,9 @@ Os ambientes continuam separados por `terraform workspace`:
 O `deploy.sh` executa este fluxo:
 
 1. Carrega o `.env`
-2. Seleciona ou cria o workspace Terraform
-3. Executa `terraform plan` e `terraform apply`
-4. Le o IP publico provisionado
-5. Gera `ansible/inventory/hosts.yml`
-6. Executa o playbook `ansible/playbooks/site.yml`
+2. Gera ou reutiliza a chave SSH local do ambiente
+3. Seleciona ou cria o workspace Terraform
+4. Executa `terraform plan` e `terraform apply`
+5. Le o IP publico provisionado
+6. Gera `ansible/inventory/hosts.yml`
+7. Executa o playbook `ansible/playbooks/site.yml`

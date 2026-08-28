@@ -44,6 +44,15 @@ locals {
   }
 }
 
+resource "aws_key_pair" "automation" {
+  key_name   = "${local.name_prefix}-key"
+  public_key = var.ssh_public_key
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-key"
+  })
+}
+
 module "network" {
   source = "./modules/mod_network"
 
@@ -64,6 +73,6 @@ module "webserver" {
   security_group_ids = [module.network.public_web_security_group_id]
   instance_type      = local.webserver_instance_type
   instance_name      = "${local.name_prefix}-webserver"
-  key_name           = var.key_name
+  key_name           = aws_key_pair.automation.key_name
   tags               = local.common_tags
 }

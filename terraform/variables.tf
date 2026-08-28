@@ -14,7 +14,7 @@ variable "ssh_allowed_cidr_block" {
   }
 }
 
-variable "key_name" {
-  description = "Nome do key pair da AWS usado para acesso SSH da automacao Ansible"
+variable "ssh_public_key" {
+  description = "Conteudo da chave publica SSH que o Terraform registrara como key pair na AWS"
   type        = string
 }

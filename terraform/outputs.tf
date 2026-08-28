@@ -27,3 +27,8 @@ output "webserver_ssh_user" {
   description = "Usuario SSH padrao para a instancia EC2"
   value       = "ec2-user"
 }
+
+output "key_pair_name" {
+  description = "Nome do key pair registrado pelo Terraform na AWS"
+  value       = aws_key_pair.automation.key_name
+}
