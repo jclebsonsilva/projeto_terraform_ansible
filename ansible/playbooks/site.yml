@@ -1,5 +1,4 @@
----
-- name: Configurar servidor web provisionado pelo Terraform
+- name: Preparar instancia provisionada pelo Terraform
   hosts: webservers
   become: true
   gather_facts: false
@@ -13,4 +12,5 @@
       ansible.builtin.setup:
 
   roles:
-    - role: webserver
+    - role: docker
+    - role: getting_started_app
