@@ -1,0 +1,45 @@
+---
+- name: Instalar Git para obter o codigo da aplicacao
+  ansible.builtin.dnf:
+    name: git
+    state: present
+
+- name: Garantir diretorio da aplicacao
+  ansible.builtin.file:
+    path: "{{ getting_started_app_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Baixar repositorio oficial da aplicacao
+  ansible.builtin.git:
+    repo: "{{ getting_started_app_repo_url }}"
+    dest: "{{ getting_started_app_directory }}"
+    version: "{{ getting_started_app_repo_version }}"
+    force: true
+
+- name: Publicar Dockerfile da aplicacao
+  ansible.builtin.template:
+    src: Dockerfile.j2
+    dest: "{{ getting_started_app_directory }}/Dockerfile"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Construir imagem da aplicacao
+  community.docker.docker_image:
+    name: "{{ getting_started_app_image_name }}"
+    tag: "{{ getting_started_app_image_tag }}"
+    source: build
+    build:
+      path: "{{ getting_started_app_directory }}"
+    state: present
+
+- name: Garantir container da aplicacao em execucao
+  community.docker.docker_container:
+    name: "{{ getting_started_app_container_name }}"
+    image: "{{ getting_started_app_image_name }}:{{ getting_started_app_image_tag }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports: "{{ getting_started_app_published_ports }}"

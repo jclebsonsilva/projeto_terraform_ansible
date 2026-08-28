@@ -1,0 +1,13 @@
+---
+- name: Instalar Docker Engine e dependencias Python
+  ansible.builtin.dnf:
+    name:
+      - docker
+      - python3-requests
+    state: present
+
+- name: Garantir que o servico Docker esteja habilitado e ativo
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true

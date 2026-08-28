@@ -1,0 +1,16 @@
+- name: Preparar instancia provisionada pelo Terraform
+  hosts: webservers
+  become: true
+  gather_facts: false
+
+  pre_tasks:
+    - name: Aguardar disponibilidade SSH da instancia
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+
+    - name: Coletar fatos da instancia
+      ansible.builtin.setup:
+
+  roles:
+    - role: docker
+    - role: getting_started_app

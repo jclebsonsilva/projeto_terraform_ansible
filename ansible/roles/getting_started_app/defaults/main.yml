@@ -1,0 +1,10 @@
+---
+getting_started_app_repo_url: "https://github.com/docker/getting-started-app.git"
+getting_started_app_repo_version: "main"
+getting_started_app_directory: "/opt/getting-started-app"
+getting_started_app_image_name: "getting-started-app"
+getting_started_app_image_tag: "local"
+getting_started_app_container_name: "getting-started-app"
+getting_started_app_container_port: 3000
+getting_started_app_published_ports:
+  - "3000:3000"
